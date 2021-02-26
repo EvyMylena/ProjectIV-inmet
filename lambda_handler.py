@@ -46,6 +46,12 @@ def lambda_handler(event, context, data):
         crtDict(fData)
         print(dict)
 
+    return {
+        'statusCode': 200,
+        'body': json.dumps(dict)
+    }
+
+def sendKinesis(data):
     cKinesis = boto3.client("kinesis", "us-east-1")
     cKinesis.put_records(
         Records=[{
@@ -53,9 +59,7 @@ def lambda_handler(event, context, data):
             'PartitionKey': 'key'
         }],
         StreamName="kinesis-stream")
-
     return {
         'statusCode': 200,
-        'body': json.dumps(dict)
+        'body': json.dumps('Successful')
     }
-
