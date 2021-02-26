@@ -20,7 +20,7 @@ def gResponse(date, hour):
     return response
 
 def getDate(date):
-    return currentTime.date()
+    return date[:2]
 
 def getHour(hour):
     hour = hour[:2]
