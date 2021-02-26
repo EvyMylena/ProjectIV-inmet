@@ -3,9 +3,11 @@
 import requests
 import json
 from datetime import datetime
+import boto3
 
 currentTime = datetime.now()
 dict = []
+
 
 def filter(response):
     filterData = response.json()
@@ -35,10 +37,18 @@ def crtDict(fData):
         }
         dict.append(myDict)
 
-def lambda_handler(event, context):
+def lambda_handler(event, context, data):
     response = gResponse()
     date = getDate()
     hour = getHour()
+
+    cKinesis = boto3.client("kinesis", "us-east-1")
+    cKinesis.put_records(
+        Records=[{
+            'Data': json.dumps({"message_type": data}),
+            'PartitionKey': 'key'
+        }],
+        StreamName="kinesis-stream")
 
     if (response.status_code == 200):
         fData = filter(response)
