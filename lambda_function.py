@@ -15,15 +15,16 @@ def getData(event):
     dataRecords = event.get('Records')
     for i in dataRecords:
         data = i['kinesis']['data']
-        object = json.loads(base64.b64decode(data))
-        local = object['DC_NOME']
-        hi = object['HEAT_INDEX']
+        message = json.loads(base64.b64decode(data))
+        local = message['DC_NOME']
+        hi = message['HEAT_INDEX']
         if (hi != None):
             index = getIndexValue(hi)
             dir[local] = str(hi), index
         else:
            print("Índice de calor não encontrado para " + local)
 
+    print(dir)
     sendBase(dir)
 
 def getIndexValue(hi):
