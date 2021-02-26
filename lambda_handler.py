@@ -5,7 +5,8 @@ import json
 from datetime import datetime
 import boto3
 
-currentTime = datetime.now()
+currentDate = datetime.now()
+currentTime = str(datetime.now().time())
 dict = []
 
 
@@ -22,25 +23,28 @@ def getDate(date):
     return currentTime.date()
 
 def getHour(hour):
-    hour = currentTime.hour - 3
-    minute = currentTime.minute
-    return (hour, (":"), minute)
+    hour = hour[:2]
+    minute = "00"
+    return hour + minute
 
 def crtDict(fData):
     for item in fData:
         myDict = {
             'DC_NOME': item['DC_NOME'],
-            'TEMP': item['TEMP_INS'],
-            'UMD': item['UMD_INS'],
-            'TEM_MIN': item['TEMP_MIN'],
-            'TEM_MAX': item['TEMP_MAX']
+            'TEMP': item['TEM_INS'],
+            'UMD': item['UMD_INS']
         }
         dict.append(myDict)
 
 def lambda_handler(event, context, data):
-    response = gResponse()
-    date = getDate()
-    hour = getHour()
+    date = getDate(currentDate)
+    hour = str(getHour(currentTime))
+    response = gResponse(date, hour)
+
+    if (response.status_code == 200):
+        fData = filter(response)
+        crtDict(fData)
+        print(dict)
 
     cKinesis = boto3.client("kinesis", "us-east-1")
     cKinesis.put_records(
@@ -49,11 +53,6 @@ def lambda_handler(event, context, data):
             'PartitionKey': 'key'
         }],
         StreamName="kinesis-stream")
-
-    if (response.status_code == 200):
-        fData = filter(response)
-        crtDict(fData)
-        print(dict)
 
     return {
         'statusCode': 200,
