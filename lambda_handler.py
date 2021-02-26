@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 import boto3
 
-currentDate = datetime.now()
+currentDate = str(datetime.now())
 currentTime = str(datetime.now().time())
 dict = []
 
