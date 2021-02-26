@@ -36,7 +36,7 @@ def crtDict(fData):
         }
         dict.append(myDict)
 
-def lambda_handler(event, context, data):
+def lambda_handler(event, context):
     date = getDate(currentDate)
     hour = str(getHour(currentTime))
     response = gResponse(date, hour)
@@ -45,17 +45,18 @@ def lambda_handler(event, context, data):
         fData = filter(response)
         crtDict(fData)
         print(dict)
+        sendKinesis(dict)
 
     return {
         'statusCode': 200,
         'body': json.dumps(dict)
     }
 
-def sendKinesis(data):
+def sendKinesis(dict):
     cKinesis = boto3.client("kinesis", "us-east-1")
     cKinesis.put_records(
         Records=[{
-            'Data': json.dumps({"message_type": data}),
+            'Data': json.dumps({"message_type": dict}),
             'PartitionKey': 'key'
         }],
         StreamName="kinesis-stream")
